@@ -110,7 +110,6 @@ void Tree<T>::Show(Node *node){
     Show(node->right);
 }
 
-
 int main(){
     Tree <string> tree;
     FILE * file = fopen("ingredients.txt", "r");
