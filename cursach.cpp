@@ -6,53 +6,46 @@ using namespace std;
 
 FILE * file = fopen("ingredients.txt", "r");
 template <class T>
-class Tree {
-    class Node {
+class Tree{
+    class Node{
     public:
         T data;
         Node *left;
         Node *right;
         Node *parent;
-        Node(T i, Node *p  = NULL, Node *l = NULL, Node *r = NULL){
-            data = i;
-            left = l;
-            right = r;
-            parent = p;
-            
+        Node(T item1, Node *parent1  = NULL, Node *left1 = NULL, Node *right1 = NULL){
+            data = item1;
+            left = lleft1;
+            right = right1;
+            parent = parent1;  
         }
     };
     Node *root;
     int size;
-
 public:
     Tree();
     ~Tree();
-
     void Add(const T &elem){
         Add(root, elem);
         size++;
     }
-    
     void Show(Node *node);
-
-    Node * getRoot() { return root; }
-
+    Node * getRoot(){
+        return root; 
+    }
     string Find(const T& item, const T &category);
-
 private:
     void Add(Node *&node, const T &elem);
-
     void DeleteSubTree(Node *node);
 };
 
- class food{
-    public:
-        char name[40];
-        char dish[40];
-        char appetizer[40];
-    };
+class food{
+public:
+     char name[40];
+     char dish[40];
+     char appetizer[40];
+};
     
-
 template <class T>
 Tree<T>::Tree(){
     root = NULL;
@@ -66,34 +59,30 @@ Tree<T>::~Tree(){
 
 template <class T> 
 void Tree<T>::DeleteSubTree(Node *node){
-        if (node){
-            DeleteSubTree(node->left);
-            DeleteSubTree(node->right);
-            delete node;
-        }
+    if (node){
+        DeleteSubTree(node->left);
+        DeleteSubTree(node->right);
+        delete node;
     }
+}
 
 template <class T> 
 void Tree<T>::Add(Node *&node, const T &data){   
-        if (node == NULL)
-            node = new Node(data);
-
-        else if(data < node->data)
-            Add(node->left, data);
-
-        else
-            Add(node->right, data);
-        
-    }
-
+    if (node == NULL)
+        node = new Node(data);
+    else if(data < node->data)
+        Add(node->left, data);
+    else
+        Add(node->right, data);  
+}
 
 template <class T>
 string Tree<T>::Find(const T &item, const T &catagory){
     food shop[100];
     Node *parent = NULL;
-    Node *t = this->root;
-    while (t != NULL){
-        if (item == t->data){
+    Node *temp = this->root;
+    while (temp != NULL){
+        if (item == temp->data){
             while (fscanf (file, "%s%s%s", shop->name, shop->dish, shop->appetizer)!= EOF){
                 if (item == shop->name)
                     if (catagory == "main")
@@ -102,11 +91,11 @@ string Tree<T>::Find(const T &item, const T &catagory){
                         return shop->appetizer;
             }
         } else {
-            parent = t;
-            if (item < t->data)
-                t = t->left;
+            parent = temp;
+            if (item < temp->data)
+                temp = temp->left;
             else
-                t = t->right;
+                temp = temp->right;
         }
     }
     return 0;
@@ -114,17 +103,15 @@ string Tree<T>::Find(const T &item, const T &catagory){
 
 template <class T> 
 void Tree<T>::Show(Node *node){
-    if (!node)    return;   
-   
+    if (!node)    
+        return;   
     Show(node->left);
     cout<<node->data<< ", ";
     Show(node->right);
- 
 }
 
 
-    int main(){
-   
+int main(){
     Tree <string> tree;
     FILE * file = fopen("ingredients.txt", "r");
     food shop[10];
