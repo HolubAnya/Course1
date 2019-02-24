@@ -2,86 +2,117 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.ComponentModel;
-using System.Data;
 using System.Windows.Forms;
 
-namespace SnakeNVP
+namespace Exam
 {
-    class Presenter
+    public class Presenter
     {
+        MainForm viev = null;
 
-        Viev viev = null;
-        public int maxXpos { get; set; }
-           
-        public int maxYpos { get; set; }
-            
-        public Presenter(Viev viev)
+
+        public Presenter(MainForm viev)
         {
             this.viev = viev;
-            this.viev.myEvent += new EventHandler<PaintEventArgs>(viev_myEvent);
-            this.viev.update += new EventHandler(viev_update);
-            this.viev.keyUpEvent += new EventHandler<KeyEventArgs>(viev_keyUpEvent);
-            this.viev.keyDownEvent += new EventHandler<KeyEventArgs>(viev_keyDownEvent);
-            this.viev.start += new EventHandler(viev_start);
+            this.viev.find += new EventHandler(viev_find);
+            this.viev.add += new EventHandler(viev_add);
+            this.viev.chosenDec += new EventHandler(viev_chosenDec);
+            this.viev.chosenMed += new EventHandler(viev_chosenMed);
+            this.viev.chosenCare += new EventHandler(viev_chosenCare);
+
         }
 
-        void viev_keyUpEvent(object sender, KeyEventArgs e)
+        public MainForm MainForm
         {
-            Input.changeState(e.KeyCode, false);
-  
+            get => default(MainForm);
+            set
+            {
+            }
         }
 
-        void viev_keyDownEvent(object sender, KeyEventArgs e)
+        private void viev_chosenCare(object sender, EventArgs e)
         {
-            Input.changeState(e.KeyCode, true);
+            this.viev.listBoxCategories.Items.Clear();
+
+            foreach (Cosmetics item in CCare.getList())
+            {
+                this.viev.listBoxCategories.Items.Add(item.show());
+            }
         }
 
-        void viev_myEvent(object sender, PaintEventArgs e)
+        private void viev_chosenMed(object sender, EventArgs e)
         {
-            Graphics canvas = e.Graphics;
-            if (Settings.GameOver == false)
-            { 
-                for (int i = 0; i < Snake.getList().Count; i++)
+            this.viev.listBoxCategories.Items.Clear();
+
+            foreach (Cosmetics item in CMedical.getList())
+            {
+                this.viev.listBoxCategories.Items.Add(item.show());
+            }
+        }
+
+        private void viev_chosenDec(object sender, EventArgs e)
+        {
+            this.viev.listBoxCategories.Items.Clear();
+
+            foreach (Cosmetics item in CDecorative.getList())
+            {
+                this.viev.listBoxCategories.Items.Add(item.show());
+            }
+        }
+
+        void viev_find(object sender, EventArgs e)
+        {
+            this.viev.listBoxDate.Items.Clear();
+            CCare care = new CCare();
+            CDecorative decorative = new CDecorative();
+            CMedical medical = new CMedical();
+            care.findNecessary(CCare.getList(), care.Term, care.WaitNum, care.ExNum);
+            decorative.findNecessary(CDecorative.getList(), decorative.Term, decorative.WaitNum, decorative.ExNum);
+            medical.findNecessary(CMedical.getList(), medical.Term, medical.WaitNum, medical.ExNum);
+            
+            foreach (Cosmetics item in Cosmetics.getExCosmetics())
+            {
+                this.viev.listBoxDate.Items.Add(item.show());
+            }
+
+        }
+
+        void viev_add(object sender, EventArgs e)
+        {
+            if (Convert.ToInt32(this.viev.textBPrice.Text) >= 0 || Convert.ToInt32(this.viev.numericUpDownQ.Value) >= 0 || Convert.ToInt32(this.viev.textBExD.Text) >= 0 || Convert.ToInt32(this.viev.textBDelivery.Text) >= 0)
+            {
+                if (this.viev.textBCat.Text == "care" || this.viev.textBCat.Text == "Care")
                 {
-                    Brush snakeColour = Settings.defineColour(i);
-                    canvas.FillEllipse(snakeColour, new Rectangle(Snake.getList()[i].X * Settings.Width, Snake.getList()[i].Y * Settings.Height, Settings.Width, Settings.Height));
-                    canvas.FillEllipse(Brushes.Yellow, new Rectangle(Game.food.X * Settings.Width, Game.food.Y * Settings.Height, Settings.Width, Settings.Height));
+                    if (Cosmetics.ifExist(CCare.getList(), this.viev.textBCat.Text)) { return; }
+
+                    Cosmetics care = new CCare(this.viev.textBName.Text, Convert.ToInt32(this.viev.textBPrice.Text), Convert.ToInt32(this.viev.numericUpDownQ.Value), Convert.ToInt32(this.viev.textBDelivery.Text), Convert.ToInt32(this.viev.textBExD.Text));
+                    care.addNew(care);
                 }
+                else if (this.viev.textBCat.Text == "decorative" || this.viev.textBCat.Text == "Decorative")
+                {
+                    if (Cosmetics.ifExist(CDecorative.getList(), this.viev.textBCat.Text)) { return; }
+
+                    Cosmetics decorative = new CDecorative(this.viev.textBName.Text, Convert.ToInt32(this.viev.textBPrice.Text), Convert.ToInt32(this.viev.numericUpDownQ.Value), Convert.ToInt32(this.viev.textBExD.Text), Convert.ToInt32(this.viev.textBExD.Text));
+                    decorative.addNew(decorative);
+                }
+                else if (this.viev.textBCat.Text == "medical" || this.viev.textBCat.Text == "Medical")
+                {
+                    if (Cosmetics.ifExist(CMedical.getList(), this.viev.textBCat.Text)) { return; }
+
+                    Cosmetics medical = new CMedical(this.viev.textBName.Text, Convert.ToInt32(this.viev.textBPrice.Text), Convert.ToInt32(this.viev.numericUpDownQ.Value), Convert.ToInt32(this.viev.textBExD.Text), Convert.ToInt32(this.viev.textBExD.Text));
+                    medical.addNew(medical);
+                }
+                else
+                {
+                    MessageBox.Show("Try to fill category field correctly");
+                }
+
             }
             else
             {
-                string gameOver = "Game Over \n" + "Final score is " + Settings.Scors + "\n Click to restart \n";
-                this.viev.label3.Text = gameOver;
-                this.viev.label3.Visible = true;
+                MessageBox.Show("Try to fill all fields correctly");
             }
-        }
 
-        void viev_update(object sender, EventArgs e)
-        {
-            maxYpos = viev.pbCanvas.Size.Height / Settings.Height;
-            maxXpos = viev.pbCanvas.Size.Width / Settings.Width;
-
-            if (Settings.GameOver == false)
-            {
-                Input.defineDirection();
-                Game.movePlayer(maxXpos, maxYpos);
-            }
-            this.viev.label2.Text = Settings.Scors.ToString();
-            this.viev.pbCanvas.Invalidate();
-        }
-
-
-        void viev_start(object sender, EventArgs e)
-        {
-            Game.start();
-            this.viev.label3.Visible = false;
-            this.viev.label2.Text = Settings.Scors.ToString();
-            this.viev.gameTimer.Interval = 200;
-            this.viev.gameTimer.Tick += viev_update;
-            this.viev.gameTimer.Start();
         }
     }
 }
